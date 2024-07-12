@@ -1,15 +1,13 @@
 package com.company;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-//import org.apache.log4j.Logger;
 public class StudentL {
-    private static final Logger logger = Logger.getLogger(String.valueOf(StudentL.class));
+    private static final Logger logger = LoggerFactory.getLogger(StudentManagementSystem.class);
     private String jdbcURL = "jdbc:mysql://localhost:3306/ducat2_30pm";
     private String jdbcUsername = "root";
     private String jdbcPassword = "Harshit@1936";
@@ -22,6 +20,7 @@ public class StudentL {
 
 
     protected Connection getConnection() {
+
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
@@ -42,7 +41,7 @@ public class StudentL {
             preparedStatement.executeUpdate();
             logger.info("Inserted student: " + student);
         } catch (SQLException e) {
-            logger.info("Failed to insert student");
+            logger.error("Failed to insert student");
         }
     }
 
@@ -61,7 +60,7 @@ public class StudentL {
             }
             logger.info("Selected student: " + student);
         } catch (SQLException e) {
-            logger.info("Failed to select student");
+            logger.error("Failed to select student");
         }
         return student;
     }
@@ -81,7 +80,7 @@ public class StudentL {
             }
             logger.info("Selected all students");
         } catch (SQLException e) {
-            logger.info("Failed to select all students");
+            logger.error("Failed to select all students");
         }
         return students;
     }
@@ -94,12 +93,12 @@ public class StudentL {
             rowDeleted = statement.executeUpdate() > 0;
             logger.info("Deleted student with ID: " + id);
         } catch (SQLException e) {
-            logger.info("Failed to delete student");
+            logger.error("Failed to delete student");
         }
         return rowDeleted;
     }
 
-    public boolean updateStudent(Student student) {
+    public void updateStudent(Student student) {
         boolean rowUpdated = false;
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_STUDENT_SQL)) {
@@ -111,18 +110,15 @@ public class StudentL {
             rowUpdated = statement.executeUpdate() > 0;
             logger.info("Updated student: " + student);
         } catch (SQLException e) {
-            logger.info("Failed to update student");
+            logger.error("Failed to update student");
         }
-        return rowUpdated;
     }
-
-
     public List<Student> searchStudentsByNameOrGrade(String query) {
         List<Student> students = new ArrayList<>();
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_STUDENTS)) {
-            preparedStatement.setString(1, "%" + query + "%"); // Search by name
-            preparedStatement.setString(2, "%" + query + "%"); // Search by grade
+            preparedStatement.setString(1, "%" + query + "%");
+            preparedStatement.setString(2, "%" + query + "%");
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
@@ -134,7 +130,7 @@ public class StudentL {
             }
             logger.info("Searched students with query: " + query);
         } catch (SQLException e) {
-            logger.info("Failed to search students: " + e.getMessage());
+            logger.error("Failed to search students: " + e.getMessage());
         }
         return students;
     }
